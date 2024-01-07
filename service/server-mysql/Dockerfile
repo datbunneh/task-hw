@@ -2,7 +2,6 @@ FROM mysql:8-debian
 
 #install applications
 RUN apt-get -y update
-RUN apt-get -y install nano
 
 #fix terminal wrapping
 COPY service/common/etc/.bashrc /tmp/

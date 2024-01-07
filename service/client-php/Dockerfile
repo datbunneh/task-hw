@@ -3,29 +3,21 @@ FROM php:8-fpm
 #install applications
 RUN apt-get -y update
 RUN apt-get -y install zip
-RUN apt-get -y install git
-RUN apt-get -y install nano
 RUN apt-get -y install libzip-dev
 RUN apt-get -y install libicu-dev
 RUN apt-get -y install libpq-dev
-RUN apt-get -y install openssh-server
 
 #install php extensions
 RUN docker-php-ext-install opcache
 RUN docker-php-ext-install intl
 RUN docker-php-ext-install zip
 RUN docker-php-ext-install pdo_mysql
-RUN docker-php-ext-install pdo_pgsql
 RUN docker-php-ext-install mysqli
 RUN docker-php-ext-install bcmath
 RUN pecl install apcu
-RUN pecl install xdebug
-RUN pecl install redis
 
 #install dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN curl -sS https://get.symfony.com/cli/installer | bash
-#RUN mv /root/.symfony/bin/symfony /usr/local/bin/symfony
 
 #fix terminal wrapping
 COPY service/common/etc/.bashrc /tmp/
