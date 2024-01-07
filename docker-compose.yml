@@ -1,0 +1,71 @@
+version: "3.8"
+services:
+    server-nginx:
+        container_name: server-nginx
+        build:
+            context: .
+            dockerfile: service/server-nginx/Dockerfile
+        working_dir: /etc/nginx
+        volumes:
+            - ./application/server:/var/www
+            - server_cache:/var/www/var/cache
+            - server_vendor:/var/www/vendor
+        depends_on:
+            - server-php
+    server-php:
+        container_name: server-php
+        build:
+            context: .
+            dockerfile: service/server-php/Dockerfile
+        working_dir: /var/www
+        env_file:
+            - service/server-php/.env
+        expose:
+            - 9003
+        volumes:
+            - ./application/server:/var/www
+            - server_php_session:/var/php/session
+            - server_cache:/var/www/var/cache
+            - server_vendor:/var/www/vendor
+        depends_on:
+            server-mysql:
+                condition: service_healthy
+    server-mysql:
+        container_name: server-mysql
+        build:
+            context: .
+            dockerfile: service/server-mysql/Dockerfile
+        working_dir: /etc/mysql
+        ports:
+            - 3306:3306
+        env_file:
+            - service/server-mysql/.env
+        volumes:
+            - server_mysql_data:/var/lib/mysql
+        healthcheck:
+            test: mysqladmin ping -h 127.0.0.1 -u root --password=${MYSQL_ROOT_PASSWORD}
+            interval: 2s
+            retries: 10
+    client-php:
+        container_name: client-php
+        build:
+            context: .
+            dockerfile: service/client-php/Dockerfile
+        working_dir: /var/www
+        env_file:
+            - service/client-php/.env
+        expose:
+            - 9000
+        volumes:
+            - ./application/client:/var/www
+            - client_php_session:/var/php/session
+            - client_cache:/var/www/var/cache
+            - client_vendor:/var/www/vendor
+volumes:
+    server_php_session:
+    server_cache:
+    server_vendor:
+    server_mysql_data:
+    client_php_session:
+    client_cache:
+    client_vendor:
